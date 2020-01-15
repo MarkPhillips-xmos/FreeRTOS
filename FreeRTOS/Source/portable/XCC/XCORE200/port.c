@@ -43,6 +43,7 @@ void vPortSwitchContext( void )
 }
 /*-----------------------------------------------------------*/
 
+#if 0
 /***** TODO: These should be added to lib_xcore_c *****/
 static void _hwtimer_get_trigger_time( hwtimer_t t, uint32_t *time )
 {
@@ -54,6 +55,7 @@ static xcore_c_error_t hwtimer_get_trigger_time( hwtimer_t t, uint32_t *time )
 	RETURN_EXCEPTION_OR_ERROR( _hwtimer_get_trigger_time( t, time ) );
 }
 /******************************************************/
+#endif
 
 DEFINE_RTOS_INTERRUPT_CALLBACK( pxKernelTimerISR, pvData )
 {
@@ -65,12 +67,13 @@ DEFINE_RTOS_INTERRUPT_CALLBACK( pxKernelTimerISR, pvData )
 	configASSERT( xCoreID == rtos_core_id_get() );
 
 	/* must call hwtimer_get_time to clear the interrupt */
-	hwtimer_get_time( xKernelTimer, &ulNow );
+	ulNow = hwtimer_get_time( xKernelTimer );
 	/* but we want the next interrupt to be scheduled
 	 * relative to the previous interrupt time, not the
 	 * current time which is some random amount of time
 	 * later. */
-	hwtimer_get_trigger_time( xKernelTimer, &ulNow );
+	//hwtimer_get_trigger_time( xKernelTimer, &ulNow );
+	ulNow = hwtimer_get_trigger_time( xKernelTimer );
 	ulNow += configCPU_CLOCK_HZ / configTICK_RATE_HZ;
 	hwtimer_change_trigger_time( xKernelTimer, ulNow );
 
@@ -126,7 +129,7 @@ static int prvCoreInit( void )
 	if( xCoreID == 0 )
 	{
 		uint32_t ulNow;
-		hwtimer_get_time( xKernelTimer, &ulNow );
+		ulNow = hwtimer_get_time( xKernelTimer );
 //		debug_printf( "The time is now (%u)\n", ulNow );
 
 		ulNow += configCPU_CLOCK_HZ / configTICK_RATE_HZ;
@@ -242,7 +245,7 @@ BaseType_t xPortStartScheduler( void )
 	}
 
 	rtos_locks_initialize();
-	hwtimer_alloc( &xKernelTimer );
+	xKernelTimer = hwtimer_alloc();
 
 	vPortStartSMPScheduler();
 
