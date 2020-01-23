@@ -6,7 +6,7 @@
 #ifndef __ASSEMBLER__
 
 #include <xs1.h>
-#include "xcore_c.h"
+
 #include "rtos_support.h"
 
 #ifdef __cplusplus

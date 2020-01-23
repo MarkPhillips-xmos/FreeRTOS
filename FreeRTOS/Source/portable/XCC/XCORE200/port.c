@@ -5,6 +5,10 @@
 #include "task.h"
 #include <xs1.h>
 
+// For hwtimer_t
+#include "xcore/hwtimer.h"
+
+
 static hwtimer_t xKernelTimer;
 
 uint32_t ulPortYieldRequired[ portMAX_CORE_COUNT ] = { pdFALSE };
